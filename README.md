@@ -3,7 +3,7 @@
 
 ## 安装
 
-`composer install ledc/think-model-trait`
+`composer require ledc/think-model-trait`
 
 ## 使用说明
 
