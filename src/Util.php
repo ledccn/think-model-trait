@@ -2,6 +2,7 @@
 
 namespace Ledc\ThinkModelTrait;
 
+use InvalidArgumentException;
 use RuntimeException;
 use think\facade\Db;
 
@@ -21,7 +22,7 @@ class Util
         }
 
         if (!in_array($order, ['asc', 'desc'])) {
-            throw new RuntimeException('');
+            throw new InvalidArgumentException('错误的排序参数：asc升序、desc降序');
         }
 
         $config = $connections[$connection];
