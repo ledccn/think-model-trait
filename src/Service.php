@@ -30,7 +30,7 @@ class Service extends \think\Service
     public function boot(): void
     {
         $this->commands([
-            BuilderCommand::class,
+            Command::class,
         ]);
     }
 }

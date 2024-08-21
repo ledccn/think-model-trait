@@ -4,10 +4,24 @@ namespace Ledc\ThinkModelTrait;
 
 use InvalidArgumentException;
 use RuntimeException;
+use think\db\ConnectionInterface;
 use think\facade\Db;
 
+/**
+ * 工具类
+ */
 class Util
 {
+    /**
+     * 创建/切换数据库连接查询
+     * @param string $name 连接配置标识
+     * @return ConnectionInterface
+     */
+    public static function getConnect(string $name): ConnectionInterface
+    {
+        return Db::connect($name);
+    }
+
     /**
      * 获取所有数据表名称
      * @param string $connection 数据库连接名称
@@ -28,7 +42,7 @@ class Util
         $config = $connections[$connection];
         $database = $config['database'];
         $field = 'TABLE_NAME';
-        $results = Db::query("SELECT TABLE_NAME,TABLE_COMMENT,ENGINE,TABLE_ROWS,CREATE_TIME,UPDATE_TIME,TABLE_COLLATION FROM  information_schema.`TABLES` WHERE  TABLE_SCHEMA='$database' order by $field $order");
+        $results = self::getConnect($connection)->query("SELECT TABLE_NAME,TABLE_COMMENT,ENGINE,TABLE_ROWS,CREATE_TIME,UPDATE_TIME,TABLE_COLLATION FROM  information_schema.`TABLES` WHERE  TABLE_SCHEMA='$database' order by $field $order");
         if (empty($results)) {
             return [];
         }

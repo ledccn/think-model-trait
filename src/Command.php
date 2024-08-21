@@ -3,19 +3,23 @@
 namespace Ledc\ThinkModelTrait;
 
 use RuntimeException;
-use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
-use think\facade\Db;
 use Throwable;
 
 /**
  * 构建命令
  */
-class BuilderCommand extends Command
+class Command extends \think\console\Command
 {
+    /**
+     * 数据库连接名称
+     * @var string
+     */
+    protected string $connection;
+
     /**
      * 指令配置
      * @return void
@@ -50,6 +54,7 @@ class BuilderCommand extends Command
             if (empty($connection) || empty($config)) {
                 throw new RuntimeException('数据库连接配置信息为空');
             }
+            $this->connection = $connection;
 
             if (empty($table) && empty($isAll)) {
                 throw new RuntimeException('数据表名称为空');
@@ -97,21 +102,22 @@ class BuilderCommand extends Command
         $pk = 'id';
         $properties = '';
         try {
+            $connect = Util::getConnect($this->connection);
             $prefix = $config['prefix'] ?? '';
             $database = $config['database'];
-            if (Db::query("show tables like '{$prefix}{$table}'")) {
+            if ($connect->query("show tables like '{$prefix}{$table}'")) {
                 $table = "{$prefix}{$table}";
                 $table_val = "'$table'";
-            } else if (Db::query("show tables like '{$prefix}{$table}s'")) {
+            } else if ($connect->query("show tables like '{$prefix}{$table}s'")) {
                 $table = "{$prefix}{$table}s";
                 $table_val = "'$table'";
             }
-            $tableComment = Db::query('SELECT table_comment FROM information_schema.`TABLES` WHERE table_schema = ? AND table_name = ?', [$database, $table]);
+            $tableComment = $connect->query('SELECT table_comment FROM information_schema.`TABLES` WHERE table_schema = ? AND table_name = ?', [$database, $table]);
             if (!empty($tableComment)) {
                 $comments = $tableComment[0]['table_comment'] ?? $tableComment[0]['TABLE_COMMENT'];
                 $properties .= " * {$table} {$comments}" . PHP_EOL;
             }
-            foreach (Db::query("select COLUMN_NAME,DATA_TYPE,COLUMN_KEY,COLUMN_COMMENT from INFORMATION_SCHEMA.COLUMNS where table_name = '$table' and table_schema = '$database' ORDER BY ordinal_position") as $item) {
+            foreach ($connect->query("select COLUMN_NAME,DATA_TYPE,COLUMN_KEY,COLUMN_COMMENT from INFORMATION_SCHEMA.COLUMNS where table_name = '$table' and table_schema = '$database' ORDER BY ordinal_position") as $item) {
                 if ($item['COLUMN_KEY'] === 'PRI') {
                     $pk = $item['COLUMN_NAME'];
                     $item['COLUMN_COMMENT'] .= "(主键)";
