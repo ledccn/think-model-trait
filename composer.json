@@ -1,0 +1,29 @@
+{
+    "name": "ledc/think-model-trait",
+    "description": "批量生成thinkPHP项目的表注释",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "david",
+            "email": "367013672@qq.com",
+            "homepage": "https://www.iyuu.cn",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Ledc\\ThinkModelTrait\\": "src/"
+        }
+    },
+    "extra": {
+        "think": {
+            "services": [
+                "Ledc\\ThinkModelTrait\\Service"
+            ]
+        }
+    },
+    "require": {
+        "php": ">=7.4"
+    }
+}
