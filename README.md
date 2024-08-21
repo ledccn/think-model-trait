@@ -1,5 +1,4 @@
-# 说明
-
+# 批量生成thinkPHP项目的数据表注释
 
 ## 安装
 
@@ -7,7 +6,7 @@
 
 ## 使用说明
 
-例如：数据库配置文件`config/database.php`内，生成 数据库连接`mysql`内的`user`表注释，命令如下
+例如：数据库配置文件`config/database.php`，生成 数据库连接`mysql`、数据表`user`的表注释，命令如下
 
 ```shell
 php think make:trait mysql user

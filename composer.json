@@ -1,6 +1,6 @@
 {
     "name": "ledc/think-model-trait",
-    "description": "批量生成thinkPHP项目的表注释",
+    "description": "批量生成thinkPHP项目的数据表注释",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -25,6 +25,6 @@
     },
     "require": {
         "php": ">=7.4",
-        "topthink/framework": "^6.0|^6.1|^8.0"
+        "topthink/framework": "^6.0|^8.0"
     }
 }

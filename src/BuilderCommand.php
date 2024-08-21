@@ -25,7 +25,7 @@ class BuilderCommand extends Command
         $this->setName('make:trait')
             ->addArgument('connection', Argument::REQUIRED, "数据库连接名称")
             ->addArgument('table', Argument::OPTIONAL, "完整的数据表名称")
-            ->addOption('all', null, Option::VALUE_NONE, '批量生成所有表的注释')
+            ->addOption('all', null, Option::VALUE_NONE, '批量生成所有数据表的注释')
             ->addOption('m', null, Option::VALUE_NONE, '是否同时生成模型')
             ->setDescription('批量生成thinkPHP项目的表注释');
     }
@@ -38,13 +38,16 @@ class BuilderCommand extends Command
     protected function execute(Input $input, Output $output)
     {
         try {
+            // 接收参数
             $connection = $input->getArgument('connection');
             $table = $input->getArgument('table');
             $isAll = $input->hasOption('all');
             $isGenerateModel = $input->hasOption('m');
 
+            // 读取配置
             $connections = config('database.connections');
-            if (empty($connection) || empty($connections[$connection])) {
+            $config = $connections[$connection] ?? [];
+            if (empty($connection) || empty($config)) {
                 throw new RuntimeException('数据库连接配置信息为空');
             }
 
@@ -52,19 +55,16 @@ class BuilderCommand extends Command
                 throw new RuntimeException('数据表名称为空');
             }
 
+            // 命名空间
             $namespace = 'app\model';
             if ($isAll) {
+                // 批量
                 foreach (Util::getTables($connection) as $table) {
-                    $class = Util::nameToClass($table);
-                    $file = app_path('model') . "$class.php";
-
-                    $this->createModel($table, $class, $namespace, $file, $connections[$connection], $isGenerateModel);
+                    $this->generate($table, $namespace, $config, $isGenerateModel);
                 }
             } else {
-                $class = Util::nameToClass($table);
-                $file = app_path('model') . "$class.php";
-
-                $this->createModel($table, $class, $namespace, $file, $connections[$connection], $isGenerateModel);
+                // 单个
+                $this->generate($table, $namespace, $config, $isGenerateModel);
             }
 
             // 指令输出
@@ -76,16 +76,18 @@ class BuilderCommand extends Command
     }
 
     /**
-     * @param string $table
-     * @param string $class
-     * @param string $namespace
-     * @param string $file
+     * 生成数据表的字段注释
+     * @param string $table 完整的数据表名称
+     * @param string $namespace 命名空间
      * @param array $config 数据库配置
-     * @param bool $isGenerateModel
+     * @param bool $isGenerateModel 是否同时生成模型
      * @return void
      */
-    protected function createModel(string $table, string $class, string $namespace, string $file, array $config, bool $isGenerateModel = false): void
+    protected function generate(string $table, string $namespace, array $config, bool $isGenerateModel = false): void
     {
+        $class = Util::nameToClass($table);
+        $file = app_path('model') . "$class.php";
+
         $path = pathinfo($file, PATHINFO_DIRNAME);
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
