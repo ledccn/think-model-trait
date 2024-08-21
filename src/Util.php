@@ -2,8 +2,39 @@
 
 namespace Ledc\ThinkModelTrait;
 
+use RuntimeException;
+use think\facade\Db;
+
 class Util
 {
+    /**
+     * 获取所有数据表名称
+     * @param string $connection 数据库连接名称
+     * @param string $order 排序：asc升序、desc降序
+     * @return array
+     */
+    public static function getTables(string $connection, string $order = 'asc'): array
+    {
+        $connections = config('database.connections');
+        if (empty($connection) || empty($connections[$connection])) {
+            throw new RuntimeException('数据库连接配置信息为空');
+        }
+
+        if (!in_array($order, ['asc', 'desc'])) {
+            throw new RuntimeException('');
+        }
+
+        $config = $connections[$connection];
+        $database = $config['database'];
+        $field = 'TABLE_NAME';
+        $results = Db::query("SELECT TABLE_NAME,TABLE_COMMENT,ENGINE,TABLE_ROWS,CREATE_TIME,UPDATE_TIME,TABLE_COLLATION FROM  information_schema.`TABLES` WHERE  TABLE_SCHEMA='$database' order by $field $order");
+        if (empty($results)) {
+            return [];
+        }
+
+        return array_column($results, $field);
+    }
+
     /**
      * @param string $name
      * @return string
@@ -15,7 +46,7 @@ class Util
             return strtoupper($matches[1]);
         }, $namespace);
 
-        return str_replace('/', '\\' ,ucfirst($namespace));
+        return str_replace('/', '\\', ucfirst($namespace));
     }
 
     /**

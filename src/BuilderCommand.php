@@ -24,7 +24,8 @@ class BuilderCommand extends Command
     {
         $this->setName('make:trait')
             ->addArgument('connection', Argument::REQUIRED, "数据库连接名称")
-            ->addArgument('table', Argument::REQUIRED, "完整的数据表名称")
+            ->addArgument('table', Argument::OPTIONAL, "完整的数据表名称")
+            ->addOption('all', null, Option::VALUE_NONE, '批量生成所有表的注释')
             ->addOption('m', null, Option::VALUE_NONE, '是否同时生成模型')
             ->setDescription('批量生成thinkPHP项目的表注释');
     }
@@ -39,6 +40,7 @@ class BuilderCommand extends Command
         try {
             $connection = $input->getArgument('connection');
             $table = $input->getArgument('table');
+            $isAll = $input->hasOption('all');
             $isGenerateModel = $input->hasOption('m');
 
             $connections = config('database.connections');
@@ -46,15 +48,25 @@ class BuilderCommand extends Command
                 throw new RuntimeException('数据库连接配置信息为空');
             }
 
-            if (empty($table)) {
+            if (empty($table) && empty($isAll)) {
                 throw new RuntimeException('数据表名称为空');
             }
 
-            $class = Util::nameToClass($table);
-            $file = app_path('model') . "$class.php";
             $namespace = 'app\model';
+            if ($isAll) {
+                foreach (Util::getTables($connection) as $table) {
+                    $class = Util::nameToClass($table);
+                    $file = app_path('model') . "$class.php";
 
-            $this->createModel($table, $class, $namespace, $file, $connections[$connection], $isGenerateModel);
+                    $this->createModel($table, $class, $namespace, $file, $connections[$connection], $isGenerateModel);
+                }
+            } else {
+                $class = Util::nameToClass($table);
+                $file = app_path('model') . "$class.php";
+
+                $this->createModel($table, $class, $namespace, $file, $connections[$connection], $isGenerateModel);
+            }
+
             // 指令输出
             $output->writeln('命令make:trait 已生成模型注释');
         } catch (Throwable $throwable) {
