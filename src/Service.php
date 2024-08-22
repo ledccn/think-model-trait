@@ -31,6 +31,7 @@ class Service extends \think\Service
     {
         $this->commands([
             Command::class,
+            TruncateTableCommand::class,
         ]);
     }
 }

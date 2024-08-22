@@ -42,7 +42,7 @@ class Util
         $config = $connections[$connection];
         $database = $config['database'];
         $field = 'TABLE_NAME';
-        $results = self::getConnect($connection)->query("SELECT TABLE_NAME,TABLE_COMMENT,ENGINE,TABLE_ROWS,CREATE_TIME,UPDATE_TIME,TABLE_COLLATION FROM  information_schema.`TABLES` WHERE  TABLE_SCHEMA='$database' order by $field $order");
+        $results = static::getConnect($connection)->query("SELECT TABLE_NAME,TABLE_COMMENT,ENGINE,TABLE_ROWS,CREATE_TIME,UPDATE_TIME,TABLE_COLLATION FROM information_schema.`TABLES` WHERE TABLE_SCHEMA='$database' order by $field $order");
         if (empty($results)) {
             return [];
         }
