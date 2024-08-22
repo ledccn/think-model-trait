@@ -111,6 +111,10 @@ class TruncateTableCommand extends Command
             if (empty($tables)) {
                 $output->writeln("当前数据库连接{$connection}，数据表为空，不需要清理");
             } else {
+                if (empty(array_intersect($tables, $exclude))) {
+                    throw new RuntimeException('当前数据库连接现有数据表与排除表的交集为空');
+                }
+
                 $output->writeln('执行中...');
                 $connect->query("SET FOREIGN_KEY_CHECKS = 0");
                 foreach ($tables as $table) {
