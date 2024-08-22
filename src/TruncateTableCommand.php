@@ -96,13 +96,15 @@ class TruncateTableCommand extends Command
             $exclude = $this->exclude;
             if (!empty($file)) {
                 $filename = runtime_path() . $file . '.php';
-                if (is_file($filename)) {
-                    $_exclude = include $filename;
-                    if (empty($_exclude) || !is_array($_exclude)) {
-                        throw new RuntimeException('排除不清理的数据表为空或非数组');
-                    }
-                    $exclude = $_exclude;
+                if (!is_file($filename)) {
+                    throw new RuntimeException('文件不存在：' . $filename);
                 }
+
+                $_exclude = include $filename;
+                if (empty($_exclude) || !is_array($_exclude)) {
+                    throw new RuntimeException('排除不清理的数据表为空或非数组');
+                }
+                $exclude = $_exclude;
             }
 
             // 循环清空表
