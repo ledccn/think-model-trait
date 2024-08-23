@@ -19,7 +19,7 @@ class TruncateTableCommand extends Command
 {
     /**
      * 清空数据表时，排除的数据表
-     * @description CRMEB单商户
+     * @description CRMEB单商户 - CRMEB-BZ v5.4.0(20240708)
      */
     protected array $exclude = [
         'eb_agent_level',
@@ -60,11 +60,11 @@ class TruncateTableCommand extends Command
     ];
 
     /**
+     * 配置指令
      * @return void
      */
     protected function configure()
     {
-        // 指令配置
         $this->setName('clear:table')
             ->addArgument('connection', Argument::REQUIRED, "数据库连接名称")
             ->addArgument('password', Argument::REQUIRED, "管理密码")
@@ -74,6 +74,7 @@ class TruncateTableCommand extends Command
     }
 
     /**
+     * 执行指令
      * @param Input $input
      * @param Output $output
      * @return void
@@ -92,27 +93,13 @@ class TruncateTableCommand extends Command
                 throw new InvalidArgumentException('密码错误：' . $date);
             }
 
-            // 清空数据表时，排除的数据表
-            $exclude = $this->exclude;
-            if (!empty($file)) {
-                $filename = runtime_path() . $file . '.php';
-                if (!is_file($filename)) {
-                    throw new RuntimeException('文件不存在：' . $filename);
-                }
-
-                $_exclude = include $filename;
-                if (empty($_exclude) || !is_array($_exclude)) {
-                    throw new RuntimeException('排除不清理的数据表为空或非数组');
-                }
-                $exclude = $_exclude;
-            }
-
             // 循环清空表
             $connect = Util::getConnect($connection);
             $tables = Util::getTables($connection);
             if (empty($tables)) {
                 $output->writeln("当前数据库连接{$connection}，数据表为空，不需要清理");
             } else {
+                $exclude = $this->getExcludeTables($file);
                 if (empty(array_intersect($tables, $exclude))) {
                     throw new RuntimeException('当前数据库连接现有数据表与排除表的交集为空');
                 }
@@ -132,11 +119,41 @@ class TruncateTableCommand extends Command
                 $connect->query("SET FOREIGN_KEY_CHECKS = 1");
             }
 
-            // 指令输出
             $output->writeln($force ? '已清空数据表' : '携带参数：--force 强制清空数据表');
         } catch (Throwable $e) {
-            // 指令输出
             $output->writeln($e->getMessage());
         }
+    }
+
+    /**
+     * 获取清理时需要排除的数据表
+     * @return array
+     */
+    protected function getExclude(): array
+    {
+        return $this->exclude;
+    }
+
+    /**
+     * 获取清理时需要排除的数据表
+     * @param string $file 文件（清空数据表时，排除的数据表）
+     * @return array|string[]
+     */
+    protected function getExcludeTables(string $file): array
+    {
+        $exclude = $this->getExclude();
+        if (!empty($file)) {
+            $filename = runtime_path() . $file . '.php';
+            if (!is_file($filename)) {
+                throw new RuntimeException('文件不存在：' . $filename);
+            }
+
+            $exclude = include $filename;
+            if (empty($exclude) || !is_array($exclude)) {
+                throw new RuntimeException('排除不清理的数据表为空或非数组');
+            }
+        }
+
+        return $exclude;
     }
 }

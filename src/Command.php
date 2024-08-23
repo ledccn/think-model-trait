@@ -15,12 +15,6 @@ use Throwable;
 class Command extends \think\console\Command
 {
     /**
-     * 数据库连接名称
-     * @var string
-     */
-    protected string $connection;
-
-    /**
      * 指令配置
      * @return void
      */
@@ -35,6 +29,7 @@ class Command extends \think\console\Command
     }
 
     /**
+     * 执行指令
      * @param Input $input
      * @param Output $output
      * @return void
@@ -54,41 +49,44 @@ class Command extends \think\console\Command
             if (empty($connection) || empty($config)) {
                 throw new RuntimeException('数据库连接配置信息为空');
             }
-            $this->connection = $connection;
-
             if (empty($table) && empty($isAll)) {
                 throw new RuntimeException('数据表名称为空');
             }
 
-            // 命名空间
-            $namespace = 'app\model';
             if ($isAll) {
                 // 批量
                 foreach (Util::getTables($connection) as $table) {
-                    $this->generate($table, $namespace, $config, $isGenerateModel);
+                    $this->generate($connection, $table, $config, $isGenerateModel);
                 }
             } else {
                 // 单个
-                $this->generate($table, $namespace, $config, $isGenerateModel);
+                $this->generate($connection, $table, $config, $isGenerateModel);
             }
 
-            // 指令输出
             $output->writeln('命令make:trait 已生成模型注释');
         } catch (Throwable $throwable) {
-            // 指令输出
             $output->writeln((string)$throwable);
         }
     }
 
     /**
+     * 获取模型或特性的命名空间
+     * @return string
+     */
+    protected function getNamespace(): string
+    {
+        return 'app\model';
+    }
+
+    /**
      * 生成数据表的字段注释
+     * @param string $connection 数据库连接名称
      * @param string $table 完整的数据表名称
-     * @param string $namespace 命名空间
      * @param array $config 数据库配置
      * @param bool $isGenerateModel 是否同时生成模型
      * @return void
      */
-    protected function generate(string $table, string $namespace, array $config, bool $isGenerateModel = false): void
+    protected function generate(string $connection, string $table, array $config, bool $isGenerateModel = false): void
     {
         $class = Util::nameToClass($table);
         $file = app_path('model') . "$class.php";
@@ -98,11 +96,12 @@ class Command extends \think\console\Command
             mkdir($path, 0777, true);
         }
 
+        $namespace = $this->getNamespace();
         $table_val = 'null';
         $pk = 'id';
         $properties = '';
         try {
-            $connect = Util::getConnect($this->connection);
+            $connect = Util::getConnect($connection);
             $prefix = $config['prefix'] ?? '';
             $database = $config['database'];
             if ($connect->query("show tables like '{$prefix}{$table}'")) {
