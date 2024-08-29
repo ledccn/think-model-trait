@@ -136,10 +136,10 @@ class TruncateTableCommand extends Command
 
     /**
      * 获取清理时需要排除的数据表
-     * @param string $file 文件（清空数据表时，排除的数据表）
+     * @param string|null $file 文件（清空数据表时，排除的数据表）
      * @return array|string[]
      */
-    protected function getExcludeTables(string $file): array
+    protected function getExcludeTables(?string $file): array
     {
         $exclude = $this->getExclude();
         if (!empty($file)) {
