@@ -110,6 +110,14 @@ class Command extends \think\console\Command
             } else if ($connect->query("show tables like '{$prefix}{$table}s'")) {
                 $table = "{$prefix}{$table}s";
                 $table_val = "'$table'";
+            } else if ($connect->query("show tables like '{$table}'")) {
+                $table = "{$table}";
+                $table_val = "'$table'";
+            } else if ($connect->query("show tables like '{$table}s'")) {
+                $table = "{$table}s";
+                $table_val = "'$table'";
+            } else {
+                throw new \InvalidArgumentException('未找到数据表：' . $table);
             }
             $tableComment = $connect->query('SELECT table_comment FROM information_schema.`TABLES` WHERE table_schema = ? AND table_name = ?', [$database, $table]);
             if (!empty($tableComment)) {
