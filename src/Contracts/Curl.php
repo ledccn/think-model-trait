@@ -780,4 +780,34 @@ class Curl
     {
         return $this->http_status_code;
     }
+
+    /**
+     * 设置超时
+     * @param int $connectTimeout 尝试连接时等待的秒数
+     * @param int $timeout 允许 cURL 函数执行的最长秒数
+     * @return self
+     */
+    public function setTimeout(int $connectTimeout = 10, int $timeout = 10): self
+    {
+        //在尝试连接时等待的秒数。设置为0，则无限等待
+        $this->setOpt(CURLOPT_CONNECTTIMEOUT, $connectTimeout);
+        //允许 cURL 函数执行的最长秒数
+        $this->setOpt(CURLOPT_TIMEOUT, $timeout);
+        return $this;
+    }
+
+    /**
+     * 设置不检查证书
+     * @param bool $verifyPeer 验证对等证书
+     * @param bool $verifyHost 检查名称
+     * @return self
+     */
+    public function setSslVerify(bool $verifyPeer = false, bool $verifyHost = false): self
+    {
+        //false 禁止 cURL 验证对等证书
+        $this->setOpt(CURLOPT_SSL_VERIFYPEER, $verifyPeer);
+        //0 时不检查名称（SSL 对等证书中的公用名称字段或主题备用名称（Subject Alternate Name，简称 SNA）字段是否与提供的主机名匹配）
+        $this->setOpt(CURLOPT_SSL_VERIFYHOST, $verifyHost);
+        return $this;
+    }
 }
