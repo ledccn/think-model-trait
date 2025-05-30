@@ -32,6 +32,7 @@ class TruncateTableCommand extends Command
         'eb_lang_type',
         'eb_member_right',
         'eb_member_ship',
+        'eb_migrations',
         'eb_out_interface',
         'eb_page_categroy',
         'eb_page_link',
