@@ -3,10 +3,11 @@
 namespace Ledc\ThinkModelTrait;
 
 use Closure;
+use Exception;
 use think\facade\Cache;
 
 /**
- *  Redis 锁
+ * Redis 锁
  */
 class RedisLocker
 {
@@ -48,14 +49,28 @@ class RedisLocker
 
     /**
      * 尝试加锁
+     * - 锁成功返回 true，锁失败返回 false
+     * @return bool
+     */
+    public function lock(): bool
+    {
+        return $this->acquire();
+    }
+
+    /**
+     * 尝试加锁
+     * - 锁成功返回 true，锁失败返回 false
      * @return bool
      */
     final public function acquire(): bool
     {
-        // SET key value NX EX=不存在时设置并设置过期时间
-        $result = self::handler()->set($this->key, $this->identifier, ['NX', 'EX' => $this->expire]);
-
-        return $result !== false;
+        try {
+            // SET key value NX EX=不存在时设置并设置过期时间
+            $result = self::handler()->set($this->key, $this->identifier, ['NX', 'EX' => $this->expire]);
+            return $result !== false;
+        } catch (Exception $exception) {
+            return false;
+        }
     }
 
     /**
@@ -64,8 +79,9 @@ class RedisLocker
      */
     final public function release(): bool
     {
-        // 使用 Lua 脚本确保原子性：只有当前持有者可以删除锁
-        $script = <<<LUA
+        try {
+            // 使用 Lua 脚本确保原子性：只有当前持有者可以删除锁
+            $script = <<<LUA
 if redis.call("get", KEYS[1]) == ARGV[1] then
     return redis.call("del", KEYS[1])
 else
@@ -73,9 +89,11 @@ else
 end
 LUA;
 
-        $result = self::handler()->eval($script, [$this->key, $this->identifier], 1);
-
-        return $result === 1;
+            $result = self::handler()->eval($script, [$this->key, $this->identifier], 1);
+            return $result === 1;
+        } catch (Exception $exception) {
+            return false;
+        }
     }
 
     /**
