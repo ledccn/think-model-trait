@@ -4,6 +4,7 @@ namespace Ledc\ThinkModelTrait;
 
 use Closure;
 use Exception;
+use InvalidArgumentException;
 use think\facade\Cache;
 
 /**
@@ -69,7 +70,7 @@ class RedisLocker
             $result = self::handler()->set($this->key, $this->identifier, ['NX', 'EX' => $this->expire]);
             return $result !== false;
         } catch (Exception $exception) {
-            return false;
+            throw new InvalidArgumentException($exception->getMessage());
         }
     }
 
@@ -92,7 +93,7 @@ LUA;
             $result = self::handler()->eval($script, [$this->key, $this->identifier], 1);
             return $result === 1;
         } catch (Exception $exception) {
-            return false;
+            throw new InvalidArgumentException($exception->getMessage());
         }
     }
 
@@ -124,13 +125,22 @@ LUA;
      * @param string $lockKey 锁KEY
      * @param callable|Closure $fn 闭包
      * @param int $expire 锁过期时间
+     * @param int $max_retries 获取锁失败后，最大重试次数
      * @return mixed
      */
-    final public static function exec(string $lockKey, callable $fn, int $expire = 30)
+    final public static function exec(string $lockKey, callable $fn, int $expire = 30, int $max_retries = 3)
     {
+        $max_retries = max($max_retries, 1);
         $locker = new RedisLocker($lockKey, $expire, true);
-        $locker->acquire();
-        return $fn($locker);
+        do {
+            if ($locker->acquire()) {
+                return $fn($locker);
+            }
+            // 等待2毫秒 wait for 2 milliseconds
+            usleep(2000);
+        } while (0 < $max_retries--);
+
+        throw new InvalidArgumentException('获取锁失败，请稍后再试');
     }
 
     /**
