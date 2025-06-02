@@ -46,7 +46,10 @@ trait HasJsonSerializable
             }
         }
 
-        return $this->checkMissingKeys($items);
+        $this->checkMissingKeys($items);
+        $this->validate($items);
+
+        return $items;
     }
 
     /**
@@ -86,9 +89,9 @@ trait HasJsonSerializable
     /**
      * 验证必填参数
      * @param array $properties
-     * @return array
+     * @return void
      */
-    final protected function checkMissingKeys(array $properties): array
+    final protected function checkMissingKeys(array $properties): void
     {
         $requiredKeys = $this->getRequiredKeys();
         if (!empty($requiredKeys)) {
@@ -103,8 +106,6 @@ trait HasJsonSerializable
                 throw new InvalidArgumentException("缺少必填参数：" . implode(',', $missingKeys));
             }
         }
-
-        return $properties;
     }
 
     /**
@@ -112,6 +113,16 @@ trait HasJsonSerializable
      * @return array
      */
     abstract protected function getRequiredKeys(): array;
+
+    /**
+     * 验证参数
+     * - 验证失败时抛出异常
+     * @param array $properties
+     * @return void
+     */
+    protected function validate(array $properties): void
+    {
+    }
 
     /**
      * 获取排除的key
