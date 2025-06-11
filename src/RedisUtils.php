@@ -90,8 +90,6 @@ LUA;
      */
     final public static function handler()
     {
-        /** @var \Predis\Client|\Redis $redis */
-        $redis = Cache::store('redis')->handler();
-        return $redis;
+        return Cache::store('redis')->handler();
     }
 }
