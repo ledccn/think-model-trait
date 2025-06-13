@@ -2,6 +2,7 @@
 
 namespace Ledc\ThinkModelTrait;
 
+use Ledc\ThinkModelTrait\Contracts\Curl;
 use Redis;
 use think\cache\Driver;
 use think\facade\Cache;
@@ -22,4 +23,15 @@ function cache_redis_driver(): Driver
 function redis_handler()
 {
     return Cache::store('redis')->handler();
+}
+
+/**
+ * 创建curl对象
+ * @return Curl
+ */
+function make_curl(): Curl
+{
+    $curl = new Curl();
+    $curl->setTimeout()->setSslVerify();
+    return $curl;
 }
