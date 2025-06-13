@@ -21,10 +21,10 @@ trait HasJobs
      * - 单位：秒
      * @var int
      */
-    protected static int $retry_seconds = 5;
+    protected int $retry_seconds = 10;
 
     /**
-     * 抽象方法，子类必须实现
+     * 子类必须实现
      * - 返回true，表示任务执行成功，会删除当前任务
      * - 抛出异常时，会根据attempts参数，决定是重试还是删除任务
      * @return bool|null
@@ -58,7 +58,8 @@ trait HasJobs
                     // null/int/bool/string/空数组
                     $result = $instance->{$method}($data);
                 }
-                if (true === $result || !$attempts) {
+
+                if (true === $result || $attempts <= 0) {
                     $job->delete();
                     return;
                 }
@@ -69,11 +70,11 @@ trait HasJobs
             Log::error('think-queue执行异常' . $throwable->getMessage());
         }
 
-        if ($job->attempts() >= $attempts) {
-            $job->delete();
+        // 重试或删除任务
+        if ($attempts && $job->attempts() < $attempts) {
+            $job->release($job->attempts() * max(3, $this->retry_seconds));
         } else {
-            $retry_seconds = max(1, static::$retry_seconds);
-            $job->release($job->attempts() * $retry_seconds);
+            $job->delete();
         }
     }
 
@@ -98,7 +99,7 @@ trait HasJobs
      * @param string|null $queue 队列名称
      * @return void
      */
-    final public static function dispatch($args, int $delay = 0, int $attempts = 0, string $queue = null): void
+    final public static function dispatch($args, int $delay = 0, int $attempts = 0, ?string $queue = null): void
     {
         $payload = [
             'job' => static::class . '@execute',
@@ -123,7 +124,7 @@ trait HasJobs
      * @param string|null $queue 队列名称
      * @return void
      */
-    final public static function emit(array $callable, $args, int $delay = 0, int $attempts = 0, array $constructor = [], string $queue = null): void
+    final public static function emit(array $callable, $args, int $delay = 0, int $attempts = 0, array $constructor = [], ?string $queue = null): void
     {
         if (2 !== count($callable)) {
             throw new RuntimeException('参数callable错误');
