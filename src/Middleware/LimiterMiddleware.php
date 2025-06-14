@@ -62,9 +62,9 @@ class LimiterMiddleware
 
     /**
      * 处理请求
-     * @param Request $request
-     * @param Closure $next
-     * @param array $rule
+     * @param Request $request 请求对象
+     * @param Closure $next 闭包
+     * @param array $rule 限流规则
      * @return Response
      * @throws RedisException
      */
@@ -105,7 +105,7 @@ LUA;
     /**
      * 生成限流key
      * - 默认 IP + Method + URI + RuleMethod 作为限流KEY
-     * @param Request $request
+     * @param Request $request 请求对象
      * @return string
      */
     protected function generateRateLimitingKey(Request $request): string
