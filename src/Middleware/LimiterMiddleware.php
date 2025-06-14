@@ -88,13 +88,13 @@ end
 LUA;
 
         $redis = RedisUtils::handler();
-        $key = $this->generateRateLimitingKey($request);
-        $result = $redis->eval($script, [$key, $rule['window'], $rule['limit']], 1);
+        $identifier = $this->generateRateLimitingKey($request);
+        $result = $redis->eval($script, [$identifier, $rule['window'], $rule['limit']], 1);
         if (0 === (int)$result) {
             $header = [
                 'X-RateLimit-Limit' => $rule['limit'],
                 'X-RateLimit-Remaining' => 0,
-                'X-RateLimit-Reset' => (int)($redis->ttl($key) ?: 0),
+                'X-RateLimit-Reset' => (int)($redis->ttl($identifier) ?: 0),
             ];
             return Response::create($this->body, 'json', $this->httpStatus)->header($header);
         }
