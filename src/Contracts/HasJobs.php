@@ -59,7 +59,7 @@ trait HasJobs
                     $result = $instance->{$method}($data);
                 }
 
-                if (true === $result || $attempts <= 0) {
+                if ($result) {
                     $job->delete();
                     return;
                 }
@@ -71,7 +71,7 @@ trait HasJobs
         }
 
         // 重试或删除任务
-        if ($attempts && $job->attempts() < $attempts) {
+        if ($attempts && $attempts > 0 && $job->attempts() < $attempts) {
             $job->release($job->attempts() * max(3, $this->retry_seconds));
         } else {
             $job->delete();
