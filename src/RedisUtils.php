@@ -2,6 +2,7 @@
 
 namespace Ledc\ThinkModelTrait;
 
+use RuntimeException;
 use think\exception\ValidateException;
 use think\facade\Cache;
 use Throwable;
@@ -24,7 +25,7 @@ class RedisUtils
             $result = self::handler()->set($key, $value, ['NX', 'EX' => $ttl]);
             return $result !== false;
         } catch (Throwable $throwable) {
-            throw new ValidateException($throwable->getMessage());
+            throw new RuntimeException($throwable->getMessage());
         }
     }
 
@@ -47,7 +48,7 @@ LUA;
             $result = self::handler()->eval($script, [$key, 1, $ttl], 1);
             return (int)$result;
         } catch (Throwable $exception) {
-            throw new ValidateException($exception->getMessage());
+            throw new RuntimeException($exception->getMessage());
         }
     }
 
@@ -79,8 +80,10 @@ LUA;
             }
 
             return (int)$result;
+        } catch (ValidateException $exception) {
+            throw $exception;
         } catch (Throwable $exception) {
-            throw new ValidateException($exception->getMessage());
+            throw new RuntimeException($exception->getMessage());
         }
     }
 
