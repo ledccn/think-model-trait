@@ -1,9 +1,10 @@
 <?php
 declare (strict_types=1);
 
-namespace Ledc\ThinkModelTrait;
+namespace Ledc\ThinkModelTrait\Command;
 
 use InvalidArgumentException;
+use Ledc\ThinkModelTrait\Util;
 use RuntimeException;
 use think\console\Command;
 use think\console\Input;

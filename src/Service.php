@@ -2,6 +2,9 @@
 
 namespace Ledc\ThinkModelTrait;
 
+use Ledc\ThinkModelTrait\Command\Command;
+use Ledc\ThinkModelTrait\Command\TruncateTableCommand;
+
 /**
  * 系统服务
  */

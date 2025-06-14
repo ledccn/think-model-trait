@@ -1,7 +1,8 @@
 <?php
 
-namespace Ledc\ThinkModelTrait;
+namespace Ledc\ThinkModelTrait\Command;
 
+use Ledc\ThinkModelTrait\Util;
 use RuntimeException;
 use think\console\Input;
 use think\console\input\Argument;
