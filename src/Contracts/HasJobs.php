@@ -40,7 +40,7 @@ trait HasJobs
     final public function fire(Job $job, array $payload): void
     {
         $jobs = $payload['job'] ?? '';
-        $data = $payload['args'] ?? null;
+        $arguments = $payload['args'] ?? null;
         $constructor = $payload['constructor'] ?? [];
         $attempts = $payload['attempts'] ?? 0;
         if (empty($jobs)) {
@@ -51,12 +51,16 @@ trait HasJobs
             list($class, $method) = self::parseJob($jobs);
             $instance = $constructor ? (new $class(... array_values($constructor))) : (new $class);
             if (method_exists($instance, $method)) {
-                if ($data && is_array($data)) {
-                    // 非空数组
-                    $result = $instance->{$method}(... array_values($data));
+                if (is_array($arguments)) {
+                    if ($arguments) {
+                        // 非空数组，支持命名参数
+                        $result = call_user_func_array([$instance, $method], $arguments);
+                    } else {
+                        $result = $instance->{$method}();
+                    }
                 } else {
                     // null/int/bool/string/空数组
-                    $result = $instance->{$method}($data);
+                    $result = $instance->{$method}($arguments);
                 }
 
                 if ($result) {
