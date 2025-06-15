@@ -68,7 +68,7 @@ class LimiterMiddleware
      * @return Response
      * @throws RedisException
      */
-    public function handle(Request $request, Closure $next, array $rule = []): Response
+    final public function handle(Request $request, Closure $next, array $rule = []): Response
     {
         if ($this->config->get('cache.default') === 'file') {
             return $next($request);
