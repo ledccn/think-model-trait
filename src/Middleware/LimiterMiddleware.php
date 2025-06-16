@@ -19,8 +19,8 @@ class LimiterMiddleware
      * 默认限流规则
      */
     public const DEFAULT_RULE = [
-        'limit' => 5,   // 允许的请求数
-        'window' => 3,  // 限流时间窗口（单位秒）
+        'limit' => 3,   // 允许的请求数
+        'window' => 5,  // 限流时间窗口（单位秒）
     ];
     /**
      * 限流规则
