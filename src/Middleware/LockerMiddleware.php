@@ -3,7 +3,7 @@
 namespace Ledc\ThinkModelTrait\Middleware;
 
 use Closure;
-use Ledc\ThinkModelTrait\Contracts\LockerParameters;
+use Ledc\ThinkModelTrait\Contracts\LockerParametersInterface;
 use Ledc\ThinkModelTrait\RedisLocker;
 use think\Config;
 use think\Request;
@@ -11,7 +11,6 @@ use think\Response;
 
 /**
  * 限制并发请求的锁中间件
- * - 您可以继承该类，并实现 generateLockingKey 或者 getIdentity 方法，生成锁的KEY
  */
 class LockerMiddleware
 {
@@ -50,10 +49,10 @@ class LockerMiddleware
      * 处理请求
      * @param Request $request 请求对象
      * @param Closure $next 闭包
-     * @param LockerParameters|null $parameters 中间件传入的锁参数
+     * @param LockerParametersInterface|null $parameters 中间件传入的锁参数
      * @return Response
      */
-    final public function handle(Request $request, Closure $next, ?LockerParameters $parameters = null): Response
+    final public function handle(Request $request, Closure $next, ?LockerParametersInterface $parameters = null): Response
     {
         if (is_null($parameters) || $this->config->get('cache.default') === 'file') {
             return $next($request);
@@ -61,8 +60,8 @@ class LockerMiddleware
 
         $locker = new RedisLocker(
             $parameters->generateLockingKey($request),
-            $parameters->expire,
-            $parameters->autoRelease
+            $parameters->getExpire(),
+            $parameters->isAutoRelease()
         );
         if (!$locker->acquire()) {
             return Response::create($this->body, 'json', $this->httpStatus);

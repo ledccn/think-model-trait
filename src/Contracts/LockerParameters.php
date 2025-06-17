@@ -6,8 +6,9 @@ use think\Request;
 
 /**
  * 锁参数类
+ * - 适用于 CRMEB单商户、CRMEB多门店
  */
-class LockerParameters
+class LockerParameters extends LockerParametersInterface
 {
     /**
      * 身份凭据类型：后台管理员
@@ -22,49 +23,21 @@ class LockerParameters
      */
     public const TYPE_UID = 'uid';
     /**
+     * 身份凭据类型：门店
+     */
+    public const TYPE_STORE = 'store';
+    /**
+     * 身份凭据类型：供应商
+     */
+    public const TYPE_SUPPLIER = 'supplier';
+    /**
+     * 身份凭据类型：收银员
+     */
+    public const TYPE_CASHIER = 'cashier';
+    /**
      * 身份凭据类型：IP
      */
     public const TYPE_IP = 'ip';
-    /**
-     * 锁的身份凭据类型(枚举值)
-     * @var string
-     */
-    public string $type = 'uid';
-    /**
-     * 锁的过期时间，单位：秒
-     * @var int
-     */
-    public int $expire = 10;
-    /**
-     * 是否自动释放锁
-     * @var bool
-     */
-    public bool $autoRelease = true;
-
-    /**
-     * 构造函数
-     * @param string $type 锁的身份凭据类型
-     * @param int $expire 锁的过期时间，单位：秒
-     * @param bool $autoRelease 是否自动释放锁
-     */
-    final protected function __construct(string $type, int $expire, bool $autoRelease = true)
-    {
-        $this->type = $type;
-        $this->expire = $expire;
-        $this->autoRelease = $autoRelease;
-    }
-
-    /**
-     * 创建锁参数
-     * @param string $type
-     * @param int $expire
-     * @param bool $autoRelease
-     * @return self
-     */
-    final public static function make(string $type, int $expire, bool $autoRelease = true): self
-    {
-        return new static($type, $expire, $autoRelease);
-    }
 
     /**
      * 构造后台管理员锁参数
@@ -121,7 +94,7 @@ class LockerParameters
         $identity = $this->getIdentity($request);
         $keys = [
             'locker',
-            $this->type,
+            $this->getType(),
             $identity,
             sha1(implode(':', [
                 // 当前文件路径，防止缓存冲突
@@ -142,13 +115,19 @@ class LockerParameters
      */
     protected function getIdentity(Request $request): string
     {
-        switch ($this->type) {
+        switch ($this->getType()) {
             case self::TYPE_ADMIN:
                 return $request->adminId();
             case self::TYPE_KEFU;
                 return $request->kefuId();
             case self::TYPE_UID:
                 return $request->uid();
+            case self::TYPE_STORE:
+                return $request->storeId();
+            case self::TYPE_SUPPLIER:
+                return $request->supplierId();
+            case self::TYPE_CASHIER:
+                return $request->cashierId();
             case self::TYPE_IP:
             default:
                 return $request->ip();
