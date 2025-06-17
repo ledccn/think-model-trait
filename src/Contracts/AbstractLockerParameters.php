@@ -8,7 +8,7 @@ use think\Request;
  * 锁参数接口
  * - 您可以继承该类，并实现 generateLockingKey 方法，生成锁的KEY
  */
-abstract class LockerParametersInterface
+abstract class AbstractLockerParameters
 {
     /**
      * 锁的身份凭据类型(枚举值)

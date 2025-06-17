@@ -3,7 +3,7 @@
 namespace Ledc\ThinkModelTrait\Middleware;
 
 use Closure;
-use Ledc\ThinkModelTrait\Contracts\LockerParametersInterface;
+use Ledc\ThinkModelTrait\Contracts\AbstractLockerParameters;
 use Ledc\ThinkModelTrait\RedisLocker;
 use think\Config;
 use think\Request;
@@ -49,10 +49,10 @@ class LockerMiddleware
      * 处理请求
      * @param Request $request 请求对象
      * @param Closure $next 闭包
-     * @param LockerParametersInterface|null $parameters 中间件传入的锁参数
+     * @param AbstractLockerParameters|null $parameters 中间件传入的锁参数
      * @return Response
      */
-    final public function handle(Request $request, Closure $next, ?LockerParametersInterface $parameters = null): Response
+    final public function handle(Request $request, Closure $next, ?AbstractLockerParameters $parameters = null): Response
     {
         if (is_null($parameters) || $this->config->get('cache.default') === 'file') {
             return $next($request);

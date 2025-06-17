@@ -8,7 +8,7 @@ use think\Request;
  * 锁参数类
  * - 适用于 CRMEB单商户、CRMEB多门店
  */
-class LockerParameters extends LockerParametersInterface
+class LockerParameters extends AbstractLockerParameters
 {
     /**
      * 身份凭据类型：后台管理员
