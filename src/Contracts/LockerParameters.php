@@ -73,6 +73,39 @@ class LockerParameters extends AbstractLockerParameters
     }
 
     /**
+     * 构造门店锁参数
+     * @param int $expire 锁的过期时间，单位：秒
+     * @param bool $autoRelease 是否自动释放锁
+     * @return self
+     */
+    public static function builderStore(int $expire = 10, bool $autoRelease = true): self
+    {
+        return self::make(self::TYPE_STORE, $expire, $autoRelease);
+    }
+
+    /**
+     * 构造供应商锁参数
+     * @param int $expire 锁的过期时间，单位：秒
+     * @param bool $autoRelease 是否自动释放锁
+     * @return self
+     */
+    public static function builderSupplier(int $expire = 10, bool $autoRelease = true): self
+    {
+        return self::make(self::TYPE_SUPPLIER, $expire, $autoRelease);
+    }
+
+    /**
+     * 构造收银员锁参数
+     * @param int $expire 锁的过期时间，单位：秒
+     * @param bool $autoRelease 是否自动释放锁
+     * @return self
+     */
+    public static function builderCashier(int $expire = 10, bool $autoRelease = true): self
+    {
+        return self::make(self::TYPE_CASHIER, $expire, $autoRelease);
+    }
+
+    /**
      * 构造IP锁参数
      * @param int $expire 锁的过期时间，单位：秒
      * @param bool $autoRelease 是否自动释放锁
