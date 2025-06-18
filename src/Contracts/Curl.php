@@ -292,15 +292,15 @@ class Curl
      *
      * The get request has no body data, the data will be correctly added to the $url with the http_build_query() method.
      *
-     * @param string $url  The url to make the get request for
-     * @param array  $data Optional arguments who are part of the url
+     * @param string $url The url to make the get request for
+     * @param array $data Optional arguments who are part of the url
      * @return self
      */
     public function get($url, $data = array())
     {
         $this->setOpt(CURLOPT_CUSTOMREQUEST, "GET");
         if (count($data) > 0) {
-            $this->setOpt(CURLOPT_URL, $url.'?'.http_build_query($data));
+            $this->setOpt(CURLOPT_URL, $url . '?' . http_build_query($data));
         } else {
             $this->setOpt(CURLOPT_URL, $url);
         }
@@ -334,7 +334,7 @@ class Curl
     /**
      * Make a post request with optional post data.
      *
-     * @param string $url  The url to make the post request
+     * @param string $url The url to make the post request
      * @param array|object|string $data Post data to pass to the url
      * @param boolean $asJson Whether the data should be passed as json or not. {@insce 2.2.1}
      * @return self
@@ -365,9 +365,9 @@ class Curl
      */
     public function put($url, $data = array(), $payload = false, $asJson = false)
     {
-        if (! empty($data)) {
+        if (!empty($data)) {
             if ($payload === false) {
-                $url .= '?'.http_build_query($data);
+                $url .= '?' . http_build_query($data);
             } else {
                 if ($asJson) {
                     $this->prepareJsonPayload($data);
@@ -396,9 +396,9 @@ class Curl
      */
     public function patch($url, $data = array(), $payload = false, $asJson = false)
     {
-        if (! empty($data)) {
+        if (!empty($data)) {
             if ($payload === false) {
-                $url .= '?'.http_build_query($data);
+                $url .= '?' . http_build_query($data);
             } else {
                 if ($asJson) {
                     $this->prepareJsonPayload($data);
@@ -424,9 +424,9 @@ class Curl
      */
     public function delete($url, $data = array(), $payload = false)
     {
-        if (! empty($data)) {
+        if (!empty($data)) {
             if ($payload === false) {
-                $url .= '?'.http_build_query($data);
+                $url .= '?' . http_build_query($data);
             } else {
                 $this->preparePayload($data);
             }
@@ -458,7 +458,7 @@ class Curl
     public function setBasicAuthentication($username, $password)
     {
         $this->setHttpAuth(self::AUTH_BASIC);
-        $this->setOpt(CURLOPT_USERPWD, $username.':'.$password);
+        $this->setOpt(CURLOPT_USERPWD, $username . ':' . $password);
         return $this;
     }
 
@@ -473,13 +473,13 @@ class Curl
      * $curl->get('http://example.com/request.php');
      * ```
      *
-     * @param string $key   The header key
+     * @param string $key The header key
      * @param string $value The value for the given header key
      * @return self
      */
     public function setHeader($key, $value)
     {
-        $this->_headers[$key] = $key.': '.$value;
+        $this->_headers[$key] = $key . ': ' . $value;
         $this->setOpt(CURLOPT_HTTPHEADER, array_values($this->_headers));
         return $this;
     }
@@ -521,7 +521,7 @@ class Curl
     /**
      * Set contents of HTTP Cookie header.
      *
-     * @param string $key   The name of the cookie
+     * @param string $key The name of the cookie
      * @param string $value The value for the provided cookie name
      * @return self
      */
@@ -576,11 +576,11 @@ class Curl
     }
 
     /**
-    * Return the endpoint set for curl
-    *
-    * @see http://php.net/curl_getinfo
-    * @return string of endpoint
-    */
+     * Return the endpoint set for curl
+     *
+     * @see http://php.net/curl_getinfo
+     * @return string of endpoint
+     */
     public function getEndpoint()
     {
         return $this->getOpt(CURLINFO_EFFECTIVE_URL);
@@ -809,5 +809,16 @@ class Curl
         //0 时不检查名称（SSL 对等证书中的公用名称字段或主题备用名称（Subject Alternate Name，简称 SNA）字段是否与提供的主机名匹配）
         $this->setOpt(CURLOPT_SSL_VERIFYHOST, $verifyHost);
         return $this;
+    }
+
+    /**
+     * 创建一个Curl对象
+     * @return self
+     */
+    public static function make(): self
+    {
+        $curl = new static;
+        $curl->setTimeout(5, 5);
+        return $curl;
     }
 }
