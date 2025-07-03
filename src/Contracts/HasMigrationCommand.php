@@ -48,8 +48,10 @@ trait HasMigrationCommand
     {
         foreach ($this->getFileMaps() as $className => $templateFilepath) {
             $path = $this->migrationCreate($className, $templateFilepath);
-            $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', realpath($path)));
-            sleep(2);
+            if ('' !== $path) {
+                $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', realpath($path)));
+                sleep(2);
+            }
         }
     }
 
@@ -68,7 +70,9 @@ trait HasMigrationCommand
         }
 
         if (!Util::isUniqueMigrationClassName($className, $path)) {
-            throw new InvalidArgumentException(sprintf('The migration class name "%s" already exists', $className));
+            echo sprintf('The migration class name "%s" already exists', $className) . PHP_EOL;
+            return '';
+            //throw new InvalidArgumentException(sprintf('The migration class name "%s" already exists', $className));
         }
 
         // Compute the file path
