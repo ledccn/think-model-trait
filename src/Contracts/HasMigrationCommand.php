@@ -47,7 +47,7 @@ trait HasMigrationCommand
     public function eachFileMaps(Input $input, Output $output): void
     {
         foreach ($this->getFileMaps() as $className => $templateFilepath) {
-            $path = $this->migrationCreate($className, $templateFilepath);
+            $path = $this->migrationCreate($className, $templateFilepath, $input, $output);
             if ('' !== $path) {
                 $output->writeln('<info>created</info> .' . str_replace(getcwd(), '', realpath($path)));
                 sleep(2);
@@ -59,9 +59,11 @@ trait HasMigrationCommand
      * 创建迁移文件
      * @param string $className
      * @param string $templateFilepath
+     * @param Input $input
+     * @param Output $output
      * @return string
      */
-    protected function migrationCreate(string $className, string $templateFilepath): string
+    protected function migrationCreate(string $className, string $templateFilepath, Input $input, Output $output): string
     {
         $path = $this->ensureDirectory();
 
@@ -70,7 +72,7 @@ trait HasMigrationCommand
         }
 
         if (!Util::isUniqueMigrationClassName($className, $path)) {
-            echo sprintf('The migration class name "%s" already exists', $className) . PHP_EOL;
+            $output->writeln('<comment>' . sprintf('The migration class name "%s" already exists', $className) . '</comment>');
             return '';
             //throw new InvalidArgumentException(sprintf('The migration class name "%s" already exists', $className));
         }
