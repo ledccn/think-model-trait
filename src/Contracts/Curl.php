@@ -812,6 +812,18 @@ class Curl
     }
 
     /**
+     * 设置客户端支持的内容编码类型
+     * - 它允许 cURL 自动处理压缩内容（如 gzip 或 deflate），并在接收到压缩数据时自动解码。
+     * @param string $value
+     * @return self
+     */
+    public function setEncoding(string $value = 'gzip,deflate'): self
+    {
+        $this->setOpt(CURLOPT_ENCODING, $value);
+        return $this;
+    }
+
+    /**
      * 创建一个Curl对象
      * @return self
      */
