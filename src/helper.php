@@ -63,11 +63,11 @@ function curl_get_remote_file(string $url, string $encoding = 'gzip,deflate'): s
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);    // 自动跳转，跟随请求Location
     curl_setopt($ch, CURLOPT_MAXREDIRS, 2);         // 递归次数
     $contents = curl_exec($ch);
-    curl_close($ch);
-    // 判断请求结果
     $httpStatusCode = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
     $curlErrorNo = curl_errno($ch);
     $curlErrorMessage = curl_error($ch);
+    curl_close($ch);
+    // 判断请求结果
     if (is_string($contents) && 200 <= $httpStatusCode && $httpStatusCode < 300) {
         return $contents;
     }
