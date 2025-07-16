@@ -41,7 +41,7 @@ function make_curl(): Curl
  * 使用curl下载远程文件
  * @param string $url
  * @param string $encoding
- * @return string|false
+ * @return string
  */
 function curl_get_remote_file(string $url, string $encoding = 'gzip,deflate'): string
 {
