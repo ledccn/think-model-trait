@@ -75,7 +75,7 @@ trait HasJobs
         }
 
         // 重试或删除任务
-        if ($attempts && $attempts > 0 && $job->attempts() < $attempts) {
+        if (0 < $attempts && $job->attempts() < $attempts) {
             $job->release($job->attempts() * max(3, $this->retry_seconds));
         } else {
             $job->delete();
@@ -103,7 +103,7 @@ trait HasJobs
      * @param string|null $queue 队列名称
      * @return void
      */
-    final public static function dispatch($args, int $delay = 0, int $attempts = 0, ?string $queue = null): void
+    final public static function dispatch($args, int $delay = 0, int $attempts = 3, ?string $queue = null): void
     {
         $payload = [
             'job' => static::class . '@execute',
@@ -128,7 +128,7 @@ trait HasJobs
      * @param string|null $queue 队列名称
      * @return void
      */
-    final public static function emit(array $callable, $args, int $delay = 0, int $attempts = 0, array $constructor = [], ?string $queue = null): void
+    final public static function emit(array $callable, $args, int $delay = 0, int $attempts = 3, array $constructor = [], ?string $queue = null): void
     {
         if (2 !== count($callable)) {
             throw new RuntimeException('参数callable错误');
