@@ -75,7 +75,7 @@ trait HasJobs
         }
 
         // 重试或删除任务
-        if (0 < $attempts && $job->attempts() < $attempts) {
+        if ($attempts && 0 < $attempts && $job->attempts() < $attempts) {
             $job->release($job->attempts() * max(3, $this->retry_seconds));
         } else {
             $job->delete();
