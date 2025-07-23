@@ -76,10 +76,20 @@ trait HasJobs
 
         // 重试或删除任务
         if ($attempts && 0 < $attempts && $job->attempts() < $attempts) {
-            $job->release($job->attempts() * max(3, $this->retry_seconds));
+            $job->release($job->attempts() * max(3, $this->getRetrySeconds()));
         } else {
             $job->delete();
         }
+    }
+
+    /**
+     * 获取重试间隔时间
+     * - 单位：秒
+     * @return int
+     */
+    public function getRetrySeconds(): int
+    {
+        return $this->retry_seconds;
     }
 
     /**
