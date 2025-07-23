@@ -50,25 +50,25 @@ trait HasJobs
         try {
             list($class, $method) = self::parseJob($jobs);
             $instance = $constructor ? (new $class(... array_values($constructor))) : (new $class);
-            if (method_exists($instance, $method)) {
-                if (is_array($arguments)) {
-                    if ($arguments) {
-                        // 非空数组，支持命名参数
-                        $result = call_user_func_array([$instance, $method], $arguments);
-                    } else {
-                        $result = $instance->{$method}();
-                    }
-                } else {
-                    // null/int/bool/string/空数组
-                    $result = $instance->{$method}($arguments);
-                }
+            if (!method_exists($instance, $method)) {
+                $job->delete();
+                return;
+            }
 
-                if ($result) {
-                    $job->delete();
-                    return;
+            if (is_array($arguments)) {
+                if ($arguments) {
+                    // 非空数组，支持命名参数
+                    $result = call_user_func_array([$instance, $method], $arguments);
+                } else {
+                    $result = $instance->{$method}();
                 }
             } else {
+                // null/int/bool/string/空数组
+                $result = $instance->{$method}($arguments);
+            }
+            if ($result) {
                 $job->delete();
+                return;
             }
         } catch (Throwable $throwable) {
             Log::error('think-queue执行异常' . $throwable->getMessage());
