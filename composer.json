@@ -30,6 +30,7 @@
     "php": ">=7.4",
     "topthink/framework": ">=6.0",
     "topthink/think-migration": ">=3.0",
+    "topthink/think-queue": "^3.0",
     "ext-json": "*",
     "ext-curl": "*",
     "ext-redis": "*"
