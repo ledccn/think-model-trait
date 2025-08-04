@@ -157,7 +157,7 @@ abstract class Manager
             return $this->$method(...$params);
         }
 
-        // 从容器创建
+        // 从容器创建（tips：使用name，以区分不同的对象）
         if (static::app()->bound($name)) {
             $newInstance = $this->alwaysNewInstance;
             return static::app()->make($name, $params, $newInstance);
@@ -190,7 +190,7 @@ abstract class Manager
      * 清理所有驱动实例
      * @return void
      */
-    final public function clearDriver(): void
+    final public function clearDrivers(): void
     {
         $keys = array_keys($this->drivers);
         foreach ($keys as $key) {
@@ -223,7 +223,7 @@ abstract class Manager
      * 快速获取容器中的实例 支持依赖注入
      * @return App
      */
-    public static function app(): App
+    final public static function app(): App
     {
         return Container::getInstance()->make(App::class);
     }
