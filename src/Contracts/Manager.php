@@ -31,9 +31,9 @@ abstract class Manager
 
     /**
      * 默认驱动
-     * @return string
+     * @return string|null
      */
-    abstract public function getDefaultDriver(): string;
+    abstract public function getDefaultDriver(): ?string;
 
     /**
      * 获取驱动实例
