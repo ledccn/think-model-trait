@@ -33,6 +33,7 @@
     "topthink/think-queue": "^3.0",
     "ext-json": "*",
     "ext-curl": "*",
-    "ext-redis": "*"
+    "ext-redis": "*",
+    "ledc/support-sdk": "^7.4"
   }
 }
