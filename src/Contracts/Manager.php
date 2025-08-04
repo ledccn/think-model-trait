@@ -131,7 +131,7 @@ abstract class Manager
         }
 
         // 从容器创建
-        if (app()->bound($name)) {
+        if (static::app()->bound($name)) {
             $newInstance = $this->alwaysNewInstance;
             return static::app()->make($name, $params, $newInstance);
         }
