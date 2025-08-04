@@ -5,6 +5,7 @@ namespace Ledc\ThinkModelTrait\Contracts;
 use BadMethodCallException;
 use InvalidArgumentException;
 use think\App;
+use think\Container;
 use think\helper\Str;
 
 /**
@@ -12,11 +13,6 @@ use think\helper\Str;
  */
 abstract class Manager
 {
-    /**
-     * App实例
-     * @var App
-     */
-    protected App $app;
     /**
      * 驱动
      * @var array
@@ -34,19 +30,10 @@ abstract class Manager
     protected bool $alwaysNewInstance = false;
 
     /**
-     * 构造函数
-     * @param App $app
-     */
-    public function __construct(App $app)
-    {
-        $this->app = $app;
-    }
-
-    /**
      * 默认驱动
-     * @return string|null
+     * @return string
      */
-    abstract public function getDefaultDriver(): ?string;
+    abstract public function getDefaultDriver(): string;
 
     /**
      * 获取驱动实例
@@ -144,14 +131,14 @@ abstract class Manager
         }
 
         // 从容器创建
-        if ($this->app->bound($name)) {
+        if (app()->bound($name)) {
             $newInstance = $this->alwaysNewInstance;
-            return $this->app->make($name, $params, $newInstance);
+            return static::app()->make($name, $params, $newInstance);
         }
 
         // 从命名空间创建
         $class = $this->resolveClass($type);
-        return $this->app->invokeClass($class, $params);
+        return static::app()->invokeClass($class, $params);
     }
 
     /**
@@ -185,12 +172,25 @@ abstract class Manager
     }
 
     /**
+     * 快速获取容器中的实例 支持依赖注入
+     * @template T
+     * @param string|class-string<T> $name 类名或标识 默认获取当前应用实例
+     * @param array $args 参数
+     * @param bool $newInstance 是否每次创建新的实例
+     * @return T|object|App
+     */
+    public static function app(string $name = '', array $args = [], bool $newInstance = false)
+    {
+        return Container::getInstance()->make($name ?: App::class, $args, $newInstance);
+    }
+
+    /**
      * 获取容器中的对象实例 不存在则创建（单例模式）
      * @return static
      */
     public static function getInstance(): Manager
     {
-        return App::pull(static::class);
+        return Container::pull(static::class);
     }
 
     /**
